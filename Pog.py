@@ -1,6 +1,6 @@
 import os
 os.environ['PYGAME_HIDE_SUPPORT_PROMPT'] = "hide"  ##makes that annoying help text
-import pygame, sys, math, time
+import pygame, sys, math, time, random
 ##double hash comments by jake
 #single dash comments by jon
 pygame.init() ##initalise pygame
@@ -32,13 +32,13 @@ def text_objects(text, font, colour): ##creates text objects
     textSurface = font.render(text, True, colour)
     return textSurface, textSurface.get_rect()
 
-def message_display(text, position, size, colour):
+def message_display(text, position, size, colour):  ##defines messages to be typed and displayed and whatnot
     smallText = pygame.font.Font('Assets/shitty-serif.ttf',size)
     TextSurf, TextRect = text_objects(text, smallText, colour)
     TextRect.center = position
     screen.blit(TextSurf, TextRect)
 
-def clear():
+def clear(): ##probably wont use this
     # for windows
     if os.name == 'nt':
         _ = os.system('cls')
@@ -60,6 +60,9 @@ while running:
        if event.type == pygame.QUIT:  ## makes the program mortal
            running = 0
            sys.exit()
+       if k[esc]:
+           running = 0
+           sys.exit()
        if event.type == pygame.KEYDOWN:
            for this in k:
                if this == event.key:
@@ -68,8 +71,8 @@ while running:
            for this in k:
                if this == event.key:
                    k[this] = 0
-    score += 1
-    message_display("score:"+str(score),(125, 750),15,(255,255,255))
+    score += random.randrange(1, 20)
+    message_display("score:"+str(score),(100, 100),15,(255,255,255))
     spin = pygame.transform.rotate(pogrimg, angle)
     screen.blit(spin, (pog_x, pog_y))
     pygame.draw.rect(screen, ((125, 125, 125)), (P1_pdle_x, P1_pdle_y, 160, 20))
@@ -95,14 +98,23 @@ while running:
         pog_x += pog_m_x
         pog_y += pog_m_y
 
-        if P1_pdle_x <= pog_x - 60 and P1_pdle_x >= pog_x and P1_pdle_y + 20 >= pog_y and P1_pdle_y <= pog_y + 60:
-            P1_hit()
+        if P1_pdle_x <= pog_x + 60 and P1_pdle_x + 160 >= pog_x and P1_pdle_y + 20 >= pog_y and P1_pdle_y <= pog_y + 60:
+            pog_m_y *= -1.001
+            pog_m_x = ((P1_pdle_x + 80) - (pog_x + 30)) / 20
+            score += 1
 
-        if AI_pdle_x <= pog_x - 60 and AI_pdle_x >= pog_x and AI_pdle_y + 20 >= pog_y and AI_pdle_y <= pog_y + 60:
-            AI_hit()
+        if AI_pdle_x <= pog_x + 60 and AI_pdle_x + 160 >= pog_x and AI_pdle_y + 20 >= pog_y and AI_pdle_y <= pog_y + 60:
+            pog_m_y *= -1.001
+            pog_m_x = ((P1_pdle_x + 80) - (pog_x + 30)) / 20
 
-        if k[p]:
-            P1_hit()
+        if pog_x + 60 >= 1920 or pog_x <= 0:
+            pog_x *= -1
+
+        if pog_x + 30 > AI_pdle_x + 80:
+            AI_pdle_x += 6
+
+        if pog_x + 30 < AI_pdle_x + 80:
+            AI_pdle_x -= 6
 
         angle += 5
 
