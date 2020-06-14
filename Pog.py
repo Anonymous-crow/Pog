@@ -17,7 +17,8 @@ pog_x = (1920 / 2) - 30 # the ball will start in the center of the screen: the s
 pog_y = (1080 / 2) - 30
 score = 1
 pog_m_x = 0  ## the slope of the pogball
-pog_m_y = -2
+pog_m_y = -4
+pog_edge = 0
 
 P1_pdle_x = (1920 / 2) - 80  ##starting position of the player 1 paddle
 P1_pdle_y = (7 * 1080 / 8) - 10
@@ -45,41 +46,34 @@ def clear(): ##probably wont use this
     # for mac and linux(here, os.name is 'posix')
     else:
         _ = os.system('clear')
-
-def P1_hit():
-    pog_m_y *= -1.05
-    pog_m_x = ((P1_pdle_x + 80) - (pog_x + 30)) / 20
-
-def AI_hit():
-    pog_m_y *= -1.05
-    pog_m_x = ((P1_pdle_x + 80) - (pog_x + 30)) / 20
-
-running = 1
-while running:
-    for event in pygame.event.get():
-       if event.type == pygame.QUIT:  ## makes the program mortal
+clear()
+running = 1  ##defines main loop condition
+while running: ##main loop
+    for event in pygame.event.get():## makes the program mortal
+       if event.type == pygame.QUIT:
            running = 0
            sys.exit()
-       if k[esc]:
+       if k[esc]:##if escape is pressed, exit game
            running = 0
            sys.exit()
-       if event.type == pygame.KEYDOWN:
+       if event.type == pygame.KEYDOWN: ##detects keydown events in the pygame event stream
            for this in k:
-               if this == event.key:
+               if this == event.key: ##sets key variables to 1  when key is pressed
                    k[this] = 1
-       if event.type == pygame.KEYUP:
+       if event.type == pygame.KEYUP: ##detects keyup events in the pygame event stream
            for this in k:
-               if this == event.key:
+               if this == event.key: ##sets key variables to 1  when key is un-pressed
                    k[this] = 0
-    score += random.randrange(1, 20)
-    message_display("score:"+str(score),(100, 100),15,(255,255,255))
-    spin = pygame.transform.rotate(pogrimg, angle)
-    screen.blit(spin, (pog_x, pog_y))
-    pygame.draw.rect(screen, ((125, 125, 125)), (P1_pdle_x, P1_pdle_y, 160, 20))
-    pygame.draw.rect(screen, ((125, 125, 125)), (AI_pdle_x, AI_pdle_y, 160, 20))
+    message_display("score:"+str(score),(100, 100),15,(255,255,255))  ##displays score
+    message_display("spinnage:"+str(angle),(100, 200),15,(255,255,255))  ##displays spinnage
+    spin = pygame.transform.rotate(pogrimg, angle) ##creates spinning pog image
+    screen.blit(spin, (pog_x, pog_y)) ##displays pog
+    pygame.draw.rect(screen, ((125, 125, 125)), (P1_pdle_x, P1_pdle_y, 160, 20)) ##draws player paddle
+    pygame.draw.rect(screen, ((125, 125, 125)), (AI_pdle_x, AI_pdle_y, 160, 20)) ##draws AI paddle
 
-    if state == "paused":
-        if k[sp]:
+    if state == "paused": ##if game is paused
+        message_display(PAUSED,((1920 / 2), (1080 / 2)),200,(255,255,255))  ##display paused message
+        if k[sp]:  ##if keyspace  pressed, unpause
             player_pause_input = 1
         if k[sp] == 0 and player_pause_input == 1:
             state = "go"
@@ -92,25 +86,29 @@ while running:
 
         if k[a] and P1_pdle_x >= 0:
             P1_pdle_x -= 6
-        if k[d] and P1_pdle_x <= 1860:
+        if k[d] and P1_pdle_x <= 1760:
             P1_pdle_x += 6
 
         pog_x += pog_m_x
         pog_y += pog_m_y
 
         if P1_pdle_x <= pog_x + 60 and P1_pdle_x + 160 >= pog_x and P1_pdle_y + 20 >= pog_y and P1_pdle_y <= pog_y + 60:
-            pog_m_y *= -1.001
-            pog_m_x = ((P1_pdle_x + 80) - (pog_x + 30)) / 20
+            pog_m_y *= -1.02
+            pog_m_x = ((P1_pdle_x + 80) - (pog_x + 30)) / -20
             score += 1
 
         if AI_pdle_x <= pog_x + 60 and AI_pdle_x + 160 >= pog_x and AI_pdle_y + 20 >= pog_y and AI_pdle_y <= pog_y + 60:
-            pog_m_y *= -1.001
-            pog_m_x = ((P1_pdle_x + 80) - (pog_x + 30)) / 20
+            pog_m_y *= -1.02
+            pog_m_x = ((AI_pdle_x + 80) - (pog_x + 30)) / -20
 
         if pog_x + 60 >= 1920 or pog_x <= 0:
-            pog_x *= -1
+            pog_edge = 1
 
-        if pog_x + 30 > AI_pdle_x + 80:
+        if pog_edge == 1:
+            pog_m_x *= -1
+            pog_edge = 0
+
+        if pog_x + 30 > AI_pdle_x + 80 and :
             AI_pdle_x += 6
 
         if pog_x + 30 < AI_pdle_x + 80:
